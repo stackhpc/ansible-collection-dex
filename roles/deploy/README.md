@@ -88,7 +88,7 @@ Example playbook (used with OpenStack Kayobe)
         dex_config_staticclients:
           - id: openstack-keystone
             redirectURIs:
-              - https://{{ external_net_name | net_vip_address }}:5000/redirect_uri
+              - https://{{ public_net_name | net_vip_address }}:5000/redirect_uri
             name: OpenStack
             secret: "{{ dex_keystone_client_secret }}"
         dex_config_connectors:
