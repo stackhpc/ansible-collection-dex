@@ -73,16 +73,13 @@ dex_issuer_tls: false
 # Dex issuer host
 dex_issuer_host: "{{ dex_http_host }}"
 
-# Dex issuer port
-dex_issuer_port: "{{ dex_http_port }}"
-dex_host_config_dir
 # Dex issuer path
 dex_issuer_path: "/dex"
 
 # The base path of Dex and the external name of the OpenID Connect service.
 # This is the canonical URL that all clients MUST use to refer to Dex. If a
 # path is provided, Dex's HTTP service will listen at a non-root URL.
-dex_config_issuer: "{{ 'https' if dex_issuer_tls else 'http' }}://{{ dex_issuer_host }}{{ ': ~ dex_issuer_port' if dex_issuer_port | length > 0 else '' }}{{ dex_issuer_path }}"
+dex_config_issuer: "{{ 'https' if dex_issuer_tls else 'http' }}://{{ dex_issuer_host }}{{ ': ~ dex_issuer_port' if dex_issuer_port is defined else '' }}{{ dex_issuer_path }}"
 
 dex_config_storage:
   type: "{{ dex_db_type }}"
