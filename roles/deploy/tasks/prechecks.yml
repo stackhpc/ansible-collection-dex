@@ -1,0 +1,10 @@
+---
+
+- name: Fail if database admin credentials are not provided when ensuring Dex database
+  fail:
+    msg: >-
+      Set dex_db_login_username and dex_db_login_password when
+      dex_db_ensure_database is true 
+  when:
+    - dex_db_ensure_database
+    - dex_db_login_username is not defined or dex_db_login_password is not defined

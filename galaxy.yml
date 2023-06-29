@@ -1,0 +1,14 @@
+namespace: "stackhpc"
+name: "dex"
+version: "0.0.1"
+readme: "README.md"
+authors:
+  - "Matt Anson"
+dependencies:
+  "community.docker": "*"
+  "community.mysql": "*"
+license:
+  - "Apache-2.0"
+tags:
+  - dex
+repository: "https://github.com/stackhpc/ansible-collection-dex"

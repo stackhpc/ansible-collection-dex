@@ -1,0 +1,19 @@
+---
+- name: Ensure Dex database exists
+  community.mysql.mysql_db:
+    name: "{{ dex_db_url_database }}"
+    login_user: "{{ dex_db_login_username }}"
+    login_password: "{{ dex_db_login_password }}"
+    login_host: "{{ dex_db_url_host }}"
+    login_port: "{{ dex_db_url_port }}"
+
+- name: Ensure Dex database user exists
+  community.mysql.mysql_user:
+    name: "{{ dex_db_username }}"
+    password: "{{ dex_db_password }}"
+    priv: "{{ dex_db_mariadb_user_priv }}"
+    host: "{{ dex_db_mariadb_user_host }}"
+    login_user: "{{ dex_db_login_username }}"
+    login_password: "{{ dex_db_login_password }}"
+    login_host: "{{ dex_db_url_host }}"
+    login_port: "{{ dex_db_url_port }}"

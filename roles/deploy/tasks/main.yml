@@ -1,0 +1,43 @@
+---
+- name: Run prechecks
+  include_tasks: prechecks.yml
+
+- name: Ensure Dex database and Dex database user
+  include_tasks: database.yml
+  when: 
+   - dex_db_ensure_database
+   - inventory_hostname == play_hosts[0]
+    
+- name: Ensure Dex host config directory
+  file:
+    state: directory
+    path: "{{ dex_host_config_dir }}"
+    owner: root
+    mode: 0644
+  become: true
+
+- name: Template Dex configuration
+  ansible.builtin.copy:
+    content: >-
+      {{ dex_configuration | to_nice_yaml }}
+    dest: "{{ dex_host_config_dir }}/{{ dex_config_file }}"
+    owner: 1001
+    group: 1001
+    mode: 0600
+  become: true
+  register: dex_configuration_file
+
+- name: Ensure Dex container is running
+  docker_container:
+    name: "{{ dex_docker_name }}"
+    image: "{{ dex_docker_image }}:{{ dex_docker_tag }}"
+    network_mode: host
+    etc_hosts: "{{ dex_container.etc_hosts | default(omit) }}"
+    volumes: "{{ _dex_volumes }}"
+    comparisons:
+      '*': strict
+    restart_policy: "always"
+    restart: "{{ dex_configuration_file is changed }}"
+    env: "{{ _dex_env_vars }}"
+    command: "{{ dex_docker_command }}"
+  become: true

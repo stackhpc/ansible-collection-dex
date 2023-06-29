@@ -1,0 +1,5 @@
+---
+- name: Run Dex deploy role
+  hosts: dex
+  roles:
+    - role: stackhpc.dex.deploy

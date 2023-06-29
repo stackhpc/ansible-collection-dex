@@ -1,0 +1,143 @@
+---
+#### Docker
+
+# Name of the Dex docker container
+dex_docker_name: "dex"
+
+# Docker image to use 
+dex_docker_image: "ghcr.io/dexidp/dex"
+
+# Docker tag to use
+dex_docker_tag: "v2.36.0"
+
+#### Dex database
+# Ensure that a Dex database and user are configured
+dex_db_ensure_database: true
+
+# When ensuring Dex user, set the following privileges string
+# (https://docs.ansible.com/ansible/latest/collections/community/mysql/mysql_user_module.html#parameter-priv)
+dex_db_mysql_user_priv: "{{ dex_db_url_database }}.*:ALL"
+
+# When ensuring Dex user, set the following 'host' part of the username
+# Default is all hosts
+dex_db_mysql_user_host: "%"
+
+# Database type (only mysql tested)
+dex_db_type: "mysql"
+
+# Database username
+dex_db_username: "dex"
+
+# Database password
+dex_db_password: "{{ undef('You must set a database password for dex using dex_db_password') }}"
+
+# Database name
+dex_db_url_database: "dex"
+
+# Database host
+dex_db_url_host: "{{ undef('You must set a database host for dex using dex_db_url_host') }}"
+
+# Database port
+dex_db_url_port: 3306
+
+# Database TLS
+dex_db_ssl: false
+
+#### Dex HTTP
+# Interface to bind the Dex http server
+dex_http_bind_interface: "lo"
+
+# Address to bind the Dex http server
+dex_http_host: "{{ hostvars[inventory_hostname].ansible_facts[dex_http_bind_interface].ipv4.address }}"
+
+# Port to bind the dex http server
+dex_http_port: 5556
+
+#### Dex Configuration 
+# Host configuration directory
+dex_host_config_dir: /etc/dex
+
+# Configuration filename
+dex_config_file: config.yaml
+
+# Dex expiry 
+dex_expiry_devicerequests: "5m"
+dex_expiry_signingkeys: "6h"
+dex_expiry_idtokens: "24h"
+dex_expiry_authrequests: "24h"
+
+
+# Dex issuer listens with TLS
+dex_issuer_tls: false
+
+# Dex issuer host
+dex_issuer_host: "{{ dex_http_host }}"
+
+# Dex issuer port
+dex_issuer_port: "{{ dex_http_port }}"
+dex_host_config_dir
+# Dex issuer path
+dex_issuer_path: "/dex"
+
+# The base path of Dex and the external name of the OpenID Connect service.
+# This is the canonical URL that all clients MUST use to refer to Dex. If a
+# path is provided, Dex's HTTP service will listen at a non-root URL.
+dex_config_issuer: "{{ 'https' if dex_issuer_tls else 'http' }}://{{ dex_issuer_host }}{{ ': ~ dex_issuer_port' if dex_issuer_port | length > 0 else '' }}{{ dex_issuer_path }}"
+
+dex_config_storage:
+  type: "{{ dex_db_type }}"
+  config:
+    host: "{{ dex_db_url_host }}"
+    port: "{{ dex_db_url_port }}"
+    database: "{{ dex_db_url_database }}"
+    user: "{{ dex_db_username }}"
+    password: '{% raw %}{{ getenv "DEX_STORAGE_MYSQL_PASSWORD" }}{% endraw %}'
+    ssl:
+      mode: "{{ dex_db_ssl | string }}"
+
+dex_config_web:
+  http: "{{ dex_http_host }}:{{ dex_http_port }}"
+
+dex_config_staticclients: []
+
+dex_config_connectors: []
+
+dex_config_expiry:
+  deviceRequests: "{{ dex_expiry_devicerequests }}"
+  signingKeys: "{{ dex_expiry_signingkeys }}"
+  idTokens: "{{ dex_expiry_idtokens }}"
+  authRequests: "{{ dex_expiry_authrequests }}"
+
+dex_configuration:
+  issuer: "{{ dex_config_issuer }}"
+  storage: "{{ dex_config_storage }}"
+  web: "{{ dex_config_web }}"
+  staticClients: "{{ dex_config_staticclients }}"
+  connectors: "{{ dex_config_connectors }}"
+  expiry: "{{ dex_config_expiry }}"
+
+#### Docker
+dex_docker_command: "dex serve /etc/dex/cfg/{{ dex_config_file }}"
+
+# Ensure the cache config file is mounted
+_dex_volumes_default:
+ - "{{ dex_host_config_dir }}/{{ dex_config_file }}:/etc/dex/cfg/{{ dex_config_file }}"
+
+# Allow a list of extra volumes to be specified
+dex_volumes_extra: []
+
+_dex_volumes: "{{ _dex_volumes_default + dex_volumes_extra }}"
+
+# Default env vars
+dex_env_vars_default:
+  DEX_STORAGE_MYSQL_PASSWORD: "{{ dex_db_password }}"
+
+# Override env vars
+dex_env_vars_overrides: {}
+
+_dex_env_vars: >-
+  {{
+      dex_env_vars_default | ansible.builtin.combine(dex_env_vars_overrides)
+  }}
+
+
