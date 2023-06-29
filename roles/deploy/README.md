@@ -44,6 +44,7 @@ This role deploys Dex in standalone-HA configuration, using MySQL as the backend
 * **dex_expiry_authrequests:** Dex authrequest expiry (default: `"24h"`)
 * **dex_config_staticclients:** Dex staticClient config (default: `[]`)
 * **dex_config_connectors:** Dex connectors config (default: `[]`)
+* **dex_config_oauth2:** Dex oauth2 config (default: `{}`)
 
 #### Dex container command
 ##### Optional
@@ -104,12 +105,14 @@ Example playbook (used with OpenStack Kayobe)
                 - openid
                 - email
                 - groups
-              emailToLowercase: true
-              
+              emailToLowercase: true      
         dex_db_url_host: "{{ internal_net_name | net_vip_address }}"
         dex_db_password: "{{ dex_database_password }}"
         dex_http_bind_interface: "{{ internal_interface }}"
         dex_issuer_tls: true
         dex_issuer_host: identity.example.com
         dex_issuer_path: "/dex"
+        dex_config_oauth2:
+          responseTypes:
+            - id_token
 ```

@@ -99,6 +99,8 @@ dex_config_staticclients: []
 
 dex_config_connectors: []
 
+dex_config_oauth2: {}
+
 dex_config_expiry:
   deviceRequests: "{{ dex_expiry_devicerequests }}"
   signingKeys: "{{ dex_expiry_signingkeys }}"
@@ -112,6 +114,7 @@ dex_configuration:
   staticClients: "{{ dex_config_staticclients }}"
   connectors: "{{ dex_config_connectors }}"
   expiry: "{{ dex_config_expiry }}"
+  oauth2: "{{ dex_config_oauth2 }}"
 
 #### Docker
 dex_docker_command: "dex serve /etc/dex/cfg/{{ dex_config_file }}"
